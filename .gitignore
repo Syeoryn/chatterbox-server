@@ -4,6 +4,8 @@
 .AppleDouble
 .LSOverride
 Icon
+/lib/**/*
+/client/bower_components/**/*
 
 # Thumbnails
 ._*
