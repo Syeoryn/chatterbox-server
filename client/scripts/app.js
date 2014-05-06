@@ -10,7 +10,7 @@ app.init = function(){
   app._currentRoom = "lobby";
   app.addRoom("lobby");
 
-  app.server = 'https://127.0.0.1:3000';
+  app.server = 'https://127.0.0.1:3000/classes/room1';
   $('button.submit').on('click',function(){
     app.send($('.input').val());
     $('.input').val('');
