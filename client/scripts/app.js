@@ -10,7 +10,7 @@ app.init = function(){
   app._currentRoom = "lobby";
   app.addRoom("lobby");
 
-  app.server = 'https://127.0.0.1:3000/classes/room1';
+  app.server = 'http://127.0.0.1:3000/messages';
   $('button.submit').on('click',function(){
     app.send($('.input').val());
     $('.input').val('');
@@ -67,10 +67,11 @@ app.sanitize = function(mallory, replaceSpaces) {
 
 app.fetch = function(){
   $.ajax({
-    url: app.server + '?order=-createdAt',
+    url: app.server /*+ '?order=-createdAt' */,
     type: 'GET',
     success: function (data) {
       var i;
+      data = JSON.parse(data);
       for(i = 0; i < data.results.length; i++){
         if(data.results[i].objectId === app.lastMessage){
           break;

@@ -1,6 +1,15 @@
 /* Import node's http module: */
 var http = require("http");
 var handleRequest = require("../server/request-handler").handleRequest;
+var url = require("url");
+var defaultCorsHeaders = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "access-control-allow-headers": "content-type, accept",
+  "access-control-max-age": 10, // Seconds.
+  // Previously in handleRequest function...
+  "Content-Type": "JSON/application"
+};
 
 /* Every server needs to listen on a port with a unique number. The
  * standard port for HTTP servers is port 80, but that port is
@@ -19,7 +28,25 @@ var ip = "127.0.0.1";
 we could have called it anything (myServer, blahblah, etc.). The function we pass it (handleRequest)
 will, unsurprisingly, handle all incoming requests. (ps: 'handleRequest' is in the 'request-handler' file).
 Lastly, we tell the server we made to listen on the given port and IP. */
-var server = http.createServer(handleRequest);
+/*var options = {
+  key: fs.readFile("classes/messages"),
+  cert: fs.readFile("classes/messages")
+};*/
+
+var router = {
+  '/messages': handleRequest
+};
+
+
+var server = http.createServer(function(request, response){
+  var path = url.parse(request.url).pathname;
+  if(router[path]){
+    router[path](request, response);
+  } else {
+    response.writeHead(404, defaultCorsHeaders);
+    response.end('404');
+  }
+});
 console.log("Listening on http://" + ip + ":" + port);
 server.listen(port, ip);
 

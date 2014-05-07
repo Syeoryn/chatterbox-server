@@ -1,16 +1,26 @@
-var results = [];
+var messages = [
+{
+  text: 'hello,world',
+  username: 'andrew',
+  roomname: 'lobby'
+}
+];
+
+var messageId = 0;
+
 exports.handleRequest = function(request, response) {
   /* the 'request' argument comes from nodes http module. It includes info about the
   request - such as what URL the browser is requesting. */
-
   console.log("Serving request type " + request.method + " for url " + request.url);
   var statusCodes = {
     GET: 200,
-    POST: 201
+    POST: 201,
+    OPTIONS: 200
   };
   var httpRequest = {
     GET: get,
-    POST: post
+    POST: post,
+    OPTIONS: options
   };
 
   /* .writeHead() tells our server what HTTP status code to send back */
@@ -22,17 +32,30 @@ exports.handleRequest = function(request, response) {
    * anything back to the client until you do. The string you pass to
    * response.end() will be the body of the response - i.e. what shows
    * up in the browser.*/
-  response.end(res);
+  response.end(JSON.stringify(res));
 };
 
 var post = function(request, response) {
-  results.push(request._postData);
-  return true;
+  var data = '';
+  request.on('data', function(partialData){
+    data += partialData;
+  });
+  request.on('end', function(){
+    var message = JSON.parse(data);
+    message.messageId = ++messageId;
+    message.createdAt = new Date();
+    messages.push(JSON.parse(data));
+    return {messageId: message.messageId};
+  });
 };
 
 var get = function(request, response) {
-  var res = {'results': results};
-  return JSON.stringify(res);
+  var res = {'results': messages};
+  return res;
+};
+
+var options = function(request, response){
+  return '';
 };
 
 /* These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -46,5 +69,5 @@ var defaultCorsHeaders = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10, // Seconds.
   // Previously in handleRequest function...
-  "Content-Type": "text/plain"
+  "Content-Type": "JSON/application"
 };
