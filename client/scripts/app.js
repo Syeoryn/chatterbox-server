@@ -67,20 +67,24 @@ app.sanitize = function(mallory, replaceSpaces) {
 
 app.fetch = function(){
   $.ajax({
-    url: app.server /*+ '?order=-createdAt' */,
+    url: app.server + '?order=-createdAt',
     type: 'GET',
     success: function (data) {
+      console.log('chatterbox: Messages received.')
       var i;
       data = JSON.parse(data);
       for(i = 0; i < data.results.length; i++){
-        if(data.results[i].objectId === app.lastMessage){
+        if(data.results[i].messageId === app.lastMessage){
+          window.data = data
           break;
         }
       }
       for(i = i - 1; i >= 0; i--){
         app.addMessage(data.results[i]);
       }
-      app.lastMessage = data.results[0].objectId;
+      if (data.results.length) {
+        app.lastMessage = data.results[0].messageId;
+      }
     },
     error : function (data) {
       console.error('chatterbox: Failed to get message');

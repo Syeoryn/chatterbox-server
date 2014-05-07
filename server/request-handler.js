@@ -1,14 +1,21 @@
-var messages = [
-{
-  text: 'hello,world',
-  username: 'andrew',
-  roomname: 'lobby'
-}
-];
+var messages = [];
 
 var messageId = 0;
+var queryTypes = {
+  '-createdAt': function(messages) {
+    console.log('sort sort sort');
+    console.log(messages[0]);
+    messages.sort(function(message1, message2) {
+      var date1 = Date.parse(message1.createdAt);
+      var date2 = Date.parse(message2.createdAt);
 
-exports.handleRequest = function(request, response) {
+      return date2 - date1;
+    });
+    console.log(messages[0]);
+  }
+};
+
+exports.handleRequest = function(request, response, query) {
   /* the 'request' argument comes from nodes http module. It includes info about the
   request - such as what URL the browser is requesting. */
   console.log("Serving request type " + request.method + " for url " + request.url);
@@ -26,7 +33,7 @@ exports.handleRequest = function(request, response) {
   /* .writeHead() tells our server what HTTP status code to send back */
   response.writeHead(statusCodes[request.method], defaultCorsHeaders);
 
-  var res = httpRequest[request.method](request,response);
+  var res = httpRequest[request.method](request,response, query);
 
   /* Make sure to always call response.end() - Node will not send
    * anything back to the client until you do. The string you pass to
@@ -44,12 +51,15 @@ var post = function(request, response) {
     var message = JSON.parse(data);
     message.messageId = ++messageId;
     message.createdAt = new Date();
-    messages.push(JSON.parse(data));
+    messages.push(message);
     return {messageId: message.messageId};
   });
 };
 
-var get = function(request, response) {
+var get = function(request, response, query) {
+  if (query) {
+    queryTypes[query](messages);
+  }
   var res = {'results': messages};
   return res;
 };

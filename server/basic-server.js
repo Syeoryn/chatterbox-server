@@ -39,9 +39,9 @@ var router = {
 
 
 var server = http.createServer(function(request, response){
-  var path = url.parse(request.url).pathname;
-  if(router[path]){
-    router[path](request, response);
+  var path = url.parse(request.url, true);
+  if(router[path.pathname]){
+    router[path.pathname](request, response, path.query.order);
   } else {
     response.writeHead(404, defaultCorsHeaders);
     response.end('404');
